@@ -1,4 +1,4 @@
-package roomescape.testExecutionListener;
+package roomescape.testexecutionlistener;
 
 import java.util.List;
 import org.springframework.context.ApplicationContext;
@@ -11,25 +11,12 @@ import org.springframework.test.context.support.AbstractTestExecutionListener;
 public class TestDatabaseInitializer extends AbstractTestExecutionListener {
 
     @Override
-    public void beforeTestClass(TestContext testContext) {
-        JdbcTemplate jdbcTemplate = getJdbcTemplate(testContext);
-
-        executeSchema(jdbcTemplate);
-    }
-
-    @Override
     public void afterTestMethod(TestContext testContext) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate(testContext);
 
         cleanDatabase(jdbcTemplate);
 
         resetAutoIncrement(jdbcTemplate);
-    }
-
-    private void executeSchema(JdbcTemplate jdbcTemplate) {
-        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-        populator.addScript(new ClassPathResource("schema.sql"));
-        populator.execute(jdbcTemplate.getDataSource());
     }
 
     private void cleanDatabase(JdbcTemplate jdbcTemplate) {

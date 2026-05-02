@@ -1,16 +1,24 @@
 package roomescape;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.TestExecutionListeners;
-import roomescape.testExecutionListener.TestDatabaseInitializer;
-import roomescape.testExecutionListener.TestPortInitializer;
+import roomescape.testexecutionlistener.TestDatabaseInitializer;
+import roomescape.testexecutionlistener.TestPortInitializer;
 
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@TestExecutionListeners(listeners = {TestPortInitializer.class,
-        TestDatabaseInitializer.class}, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@TestExecutionListeners(
+        listeners = {
+                TestPortInitializer.class,
+                TestDatabaseInitializer.class
+        },
+        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS
+)
 public @interface ReservationAcceptanceTest {
 }

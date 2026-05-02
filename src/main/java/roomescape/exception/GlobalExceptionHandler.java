@@ -10,7 +10,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
-import roomescape.exception.errorCode.GlobalErrorCode;
+import roomescape.exception.exception.BadRequestException;
+import roomescape.exception.exception.DuplicateException;
+import roomescape.exception.exception.NotFoundException;
 import roomescape.exception.response.ErrorResponse;
 import roomescape.exception.response.ValidationError;
 
@@ -29,18 +31,40 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse.of(GlobalErrorCode.INVALID_INPUT, errors));
+                .body(ErrorResponse.of(GlobalErrorCode.BAD_REQUEST.getMessage(), errors));
     }
 
-    @ExceptionHandler(RoomescapeException.class)
+    @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorResponse> handleBusinessException(
-            RoomescapeException e
+            BadRequestException e
     ) {
-        log.warn("BusinessException 발생: {}", e.getMessage(), e);
+        log.warn("BadRequestException 발생: {}", e.getMessage(), e);
 
         return ResponseEntity
-                .status(e.getErrorCode().getHttpStatus())
-                .body(ErrorResponse.of(e.getErrorCode()));
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse.of(e.getMessage()));
+    }
+
+    @ExceptionHandler(DuplicateException.class)
+    public ResponseEntity<ErrorResponse> handleBusinessException(
+            DuplicateException e
+    ) {
+        log.warn("DuplicateException 발생: {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse.of(e.getMessage()));
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleBusinessException(
+            NotFoundException e
+    ) {
+        log.warn("NotFoundException 발생: {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.of(e.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
@@ -51,7 +75,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ErrorResponse.of(GlobalErrorCode.INTERNAL_SERVER_ERROR));
+                .body(ErrorResponse.of(GlobalErrorCode.INTERNAL_SERVER_ERROR.getMessage()));
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
@@ -62,29 +86,29 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse.of(GlobalErrorCode.BAD_REQUEST));
+                .body(ErrorResponse.of(GlobalErrorCode.BAD_REQUEST.getMessage()));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(
             HttpMessageNotReadableException e
     ) {
-        log.warn("잘못된 요청 형식", e);
+        log.warn("HttpMessageNotReadableException 발생", e);
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse.of(GlobalErrorCode.BAD_REQUEST));
+                .body(ErrorResponse.of(GlobalErrorCode.BAD_REQUEST.getMessage()));
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<ErrorResponse> handleNoHandlerFound(
             NoHandlerFoundException e
     ) {
-        log.warn("잘못된 경로 요청", e);
+        log.warn("NoHandlerFoundException 발생", e);
 
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(ErrorResponse.of(GlobalErrorCode.NOT_FOUND));
+                .body(ErrorResponse.of(GlobalErrorCode.NOT_FOUND.getMessage()));
     }
 
 }

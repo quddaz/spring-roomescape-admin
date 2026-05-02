@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import roomescape.time.entity.ReservationTime;
-import roomescape.time.exception.ReservationTimeErrorCode;
-import roomescape.time.exception.ReservationTimeException;
+import roomescape.time.exception.ReservationTimeDuplicateException;
+import roomescape.time.exception.ReservationTimeNotFoundException;
 import roomescape.time.repository.ReservationTimeRepository;
 
 @Service
@@ -21,7 +21,7 @@ public class ReservationTimeService {
         ReservationTime reservationTime = ReservationTime.createNew(startAt);
 
         if (reservationTimeRepository.existsByStartAt(startAt)) {
-            throw new ReservationTimeException(ReservationTimeErrorCode.RESERVATION_TIME_DUPLICATE);
+            throw new ReservationTimeDuplicateException();
         }
 
         return reservationTimeRepository.save(reservationTime);
@@ -34,7 +34,7 @@ public class ReservationTimeService {
 
     public ReservationTime getById(long id) {
         return reservationTimeRepository.findById(id)
-                .orElseThrow(() -> new ReservationTimeException(ReservationTimeErrorCode.RESERVATION_TIME_NOT_FOUND));
+                .orElseThrow(ReservationTimeNotFoundException::new);
     }
 
     public List<ReservationTime> findAll() {

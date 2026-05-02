@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import roomescape.reservation.entity.Reservation;
-import roomescape.reservation.exception.ReservationErrorCode;
-import roomescape.reservation.exception.ReservationException;
+import roomescape.reservation.exception.ReservationDuplicateException;
+import roomescape.reservation.exception.ReservationNotFoundException;
 import roomescape.reservation.repository.ReservationRepository;
 import roomescape.time.entity.ReservationTime;
 import roomescape.time.service.ReservationTimeService;
@@ -24,8 +24,8 @@ public class ReservationService {
         ReservationTime reservationTime = reservationTimeService.getById(timeId);
         Reservation nonIdReservation = Reservation.createNew(name, date, reservationTime);
 
-        if(reservationRepository.existsByDateAndTimeId(date, timeId)){
-            throw new ReservationException(ReservationErrorCode.RESERVATION_DUPLICATE);
+        if (reservationRepository.existsByDateAndTimeId(date, timeId)) {
+            throw new ReservationDuplicateException();
         }
 
         return reservationRepository.save(nonIdReservation);
@@ -42,7 +42,7 @@ public class ReservationService {
 
     public Reservation getById(long id) {
         return reservationRepository.findById(id)
-                .orElseThrow(() -> new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND));
+                .orElseThrow(ReservationNotFoundException::new);
     }
 
 }

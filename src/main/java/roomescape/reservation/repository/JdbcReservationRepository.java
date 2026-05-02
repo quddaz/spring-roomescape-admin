@@ -2,7 +2,6 @@ package roomescape.reservation.repository;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.sql.Time;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;

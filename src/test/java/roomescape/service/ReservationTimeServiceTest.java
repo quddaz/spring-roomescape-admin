@@ -9,7 +9,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import roomescape.service.stub.StubReservationTimeRepository;
 import roomescape.time.entity.ReservationTime;
-import roomescape.time.exception.ReservationTimeException;
+import roomescape.time.exception.ReservationTimeDuplicateException;
+import roomescape.time.exception.ReservationTimeNotFoundException;
 import roomescape.time.service.ReservationTimeService;
 
 
@@ -47,7 +48,7 @@ class ReservationTimeServiceTest {
 
         //then
         assertThatThrownBy(() -> reservationTimeService.save(time))
-                .isInstanceOf(ReservationTimeException.class)
+                .isInstanceOf(ReservationTimeDuplicateException.class)
                 .hasMessageContaining("예약 시간은 중복 생성이 불가능합니다.");
     }
 
@@ -56,7 +57,7 @@ class ReservationTimeServiceTest {
     void findById_null_search_test() {
         //given & when & then
         assertThatThrownBy(() -> reservationTimeService.getById(99L))
-                .isInstanceOf(ReservationTimeException.class)
+                .isInstanceOf(ReservationTimeNotFoundException.class)
                 .hasMessageContaining("찾는 예약 시간이 없습니다.");
     }
 

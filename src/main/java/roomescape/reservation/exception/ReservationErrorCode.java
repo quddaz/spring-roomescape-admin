@@ -1,33 +1,18 @@
 package roomescape.reservation.exception;
 
-import org.springframework.http.HttpStatus;
-import roomescape.exception.errorCode.ErrorCode;
-
-public enum ReservationErrorCode implements ErrorCode {
-    RESERVATION_DUPLICATE(HttpStatus.CONFLICT, "예약은 중복 생성이 불가능합니다."),
-    RESERVATION_NOT_FOUND(HttpStatus.NOT_FOUND, "찾는 예약이 없습니다.");
-
-
-    private final HttpStatus httpStatus;
+public enum ReservationErrorCode {
+    RESERVATION_NAME_NOT_BLANK("예약자 이름은 비어있을 수 없습니다."),
+    RESERVATION_DATE_NOT_NULL("예약 날짜는 비어있을 수 없습니다."),
+    RESERVATION_TIME_NOT_NULL("예약 시간 정보가 없습니다."),
+    RESERVATION_DUPLICATE("예약은 중복 생성이 불가능합니다."),
+    RESERVATION_NOT_FOUND("찾는 예약이 없습니다.");
 
     private final String message;
 
-    ReservationErrorCode(HttpStatus httpStatus, String message) {
-        this.httpStatus = httpStatus;
+    ReservationErrorCode(String message) {
         this.message = message;
     }
 
-    @Override
-    public HttpStatus getHttpStatus() {
-        return httpStatus;
-    }
-
-    @Override
-    public int getCode() {
-        return httpStatus.value();
-    }
-
-    @Override
     public String getMessage() {
         return message;
     }

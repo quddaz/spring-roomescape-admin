@@ -3,10 +3,13 @@ package roomescape.exception;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
 import roomescape.exception.errorCode.GlobalErrorCode;
 import roomescape.exception.response.ErrorResponse;
 import roomescape.exception.response.ValidationError;
@@ -25,7 +28,7 @@ public class GlobalExceptionHandler {
                 .toList();
 
         return ResponseEntity
-                .status(GlobalErrorCode.INVALID_INPUT.getHttpStatus())
+                .status(HttpStatus.BAD_REQUEST)
                 .body(ErrorResponse.of(GlobalErrorCode.INVALID_INPUT, errors));
     }
 
@@ -47,7 +50,7 @@ public class GlobalExceptionHandler {
         log.error("Unexpected Exception 발생", e);
 
         return ResponseEntity
-                .status(GlobalErrorCode.INTERNAL_SERVER_ERROR.getHttpStatus())
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ErrorResponse.of(GlobalErrorCode.INTERNAL_SERVER_ERROR));
     }
 
@@ -58,8 +61,30 @@ public class GlobalExceptionHandler {
         log.warn("DataIntegrityViolationException 발생", e);
 
         return ResponseEntity
-                .status(GlobalErrorCode.BAD_REQUEST.getHttpStatus())
+                .status(HttpStatus.BAD_REQUEST)
                 .body(ErrorResponse.of(GlobalErrorCode.BAD_REQUEST));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(
+            HttpMessageNotReadableException e
+    ) {
+        log.warn("잘못된 요청 형식", e);
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse.of(GlobalErrorCode.BAD_REQUEST));
+    }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoHandlerFound(
+            NoHandlerFoundException e
+    ) {
+        log.warn("잘못된 경로 요청", e);
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.of(GlobalErrorCode.NOT_FOUND));
     }
 
 }

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import roomescape.exception.exception.BadRequestException;
@@ -20,95 +21,99 @@ import roomescape.exception.response.ValidationError;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(
-            MethodArgumentNotValidException e
-    ) {
-        List<ValidationError> errors = e.getBindingResult().getFieldErrors()
-                .stream()
-                .map(error -> ValidationError.of(error.getField(), error.getCode()))
-                .toList();
-
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse.of(GlobalErrorCode.BAD_REQUEST.getMessage(), errors));
-    }
-
     @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ErrorResponse> handleBusinessException(
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleBadRequestException(
             BadRequestException e
     ) {
         log.warn("BadRequestException 발생: {}", e.getMessage(), e);
-
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse.of(e.getMessage()));
+        return ErrorResponse.of(e.getMessage());
     }
 
     @ExceptionHandler(DuplicateException.class)
-    public ResponseEntity<ErrorResponse> handleBusinessException(
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleDuplicateException(
             DuplicateException e
     ) {
         log.warn("DuplicateException 발생: {}", e.getMessage(), e);
-
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse.of(e.getMessage()));
+        return ErrorResponse.of(e.getMessage());
     }
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleBusinessException(
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNotFoundException(
             NotFoundException e
     ) {
         log.warn("NotFoundException 발생: {}", e.getMessage(), e);
-
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ErrorResponse.of(e.getMessage()));
+        return ErrorResponse.of(e.getMessage());
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(
-            Exception e
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidationException(
+            MethodArgumentNotValidException e
     ) {
-        log.error("Unexpected Exception 발생", e);
+        List<ValidationError> errors = e.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> ValidationError.of(
+                        error.getField(),
+                        error.getCode()
+                ))
+                .toList();
 
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ErrorResponse.of(GlobalErrorCode.INTERNAL_SERVER_ERROR.getMessage()));
-    }
-
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicate(
-            DataIntegrityViolationException e
-    ) {
-        log.warn("DataIntegrityViolationException 발생", e);
-
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse.of(GlobalErrorCode.BAD_REQUEST.getMessage()));
+        return ErrorResponse.of(
+                GlobalErrorCode.BAD_REQUEST.getMessage(),
+                errors
+        );
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleHttpMessageNotReadable(
             HttpMessageNotReadableException e
     ) {
         log.warn("HttpMessageNotReadableException 발생", e);
 
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse.of(GlobalErrorCode.BAD_REQUEST.getMessage()));
+        return ErrorResponse.of(
+                GlobalErrorCode.BAD_REQUEST.getMessage()
+        );
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleDataIntegrityViolation(
+            DataIntegrityViolationException e
+    ) {
+        log.warn("DataIntegrityViolationException 발생", e);
+
+        return ErrorResponse.of(
+                GlobalErrorCode.BAD_REQUEST.getMessage()
+        );
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNoHandlerFound(
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNoHandlerFound(
             NoHandlerFoundException e
     ) {
         log.warn("NoHandlerFoundException 발생", e);
 
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ErrorResponse.of(GlobalErrorCode.NOT_FOUND.getMessage()));
+        return ErrorResponse.of(
+                GlobalErrorCode.NOT_FOUND.getMessage()
+        );
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleException(
+            Exception e
+    ) {
+        log.error("Unexpected Exception 발생", e);
+
+        return ErrorResponse.of(
+                GlobalErrorCode.INTERNAL_SERVER_ERROR.getMessage()
+        );
     }
 
 }

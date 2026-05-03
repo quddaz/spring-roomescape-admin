@@ -14,6 +14,7 @@ import roomescape.time.service.ReservationTimeService;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
@@ -31,13 +32,13 @@ public class ReservationService {
         return reservationRepository.save(nonIdReservation);
     }
 
-    public List<Reservation> findAll() {
-        return reservationRepository.findAll();
-    }
-
     @Transactional
     public void deleteById(long id) {
         reservationRepository.deleteById(id);
+    }
+
+    public List<Reservation> findAll() {
+        return reservationRepository.findAll();
     }
 
     public Reservation getById(long id) {

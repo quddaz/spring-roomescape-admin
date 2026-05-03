@@ -12,6 +12,7 @@ import roomescape.time.repository.ReservationTimeRepository;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ReservationTimeService {
 
     private final ReservationTimeRepository reservationTimeRepository;
